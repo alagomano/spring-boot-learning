@@ -2,8 +2,11 @@ package com.demo.workshop_management_api.services;
 
 import com.demo.workshop_management_api.entities.User;
 import com.demo.workshop_management_api.repositories.UseRepository;
+import com.demo.workshop_management_api.services.exceptions.DatabaseException;
 import com.demo.workshop_management_api.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +31,16 @@ public class UserService {
     }
 
     public void delete(Long userId){
+        try{
+        if (!useRepository.existsById(userId)) {
+            throw new ResourceNotFoundException(userId);
+        }
+
         useRepository.deleteById(userId);
+
+        }catch (DataIntegrityViolationException e){
+            throw new DatabaseException(e.getMessage());
+        }
     }
 
     public User  update(Long userId, User user){
